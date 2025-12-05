@@ -19,7 +19,7 @@ class DocumentType(str, Enum):
 class Document:
     """
     Entidad que representa un documento analizado con IA.
-    
+
     Attributes:
         id: Identificador único del documento
         filename: Nombre del archivo del documento
@@ -31,7 +31,7 @@ class Document:
         created_at: Fecha y hora de carga del documento
         updated_at: Fecha y hora de última actualización
     """
-    
+
     def __init__(
         self,
         id_: Optional[int] = None,
@@ -46,7 +46,7 @@ class Document:
     ):
         """
         Inicializa una instancia de Document.
-        
+
         Args:
             id_: Identificador único del documento
             filename: Nombre del archivo
@@ -67,8 +67,7 @@ class Document:
         self.user_id = user_id
         self.created_at = created_at or datetime.utcnow()
         self.updated_at = updated_at or datetime.utcnow()
-    
+
     def __repr__(self) -> str:
         """Representación en string del documento."""
         return f"<Document(id={self.id}, filename={self.filename}, type={self.document_type})>"
-
