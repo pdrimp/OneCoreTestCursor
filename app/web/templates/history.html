@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}Historial - Análisis de Documentos con IA{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-history"></i> Historial de Eventos</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filtros</h5>
+            <form id="filterForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="eventType" class="form-label">Tipo de Evento</label>
+                        <select class="form-select" id="eventType">
+                            <option value="">Todos</option>
+                            <option value="document_upload">Carga de Documento</option>
+                            <option value="ai_processing">Procesamiento IA</option>
+                            <option value="user_interaction">Interacción Usuario</option>
+                            <option value="file_upload">Carga de Archivo</option>
+                            <option value="token_renewal">Renovación de Token</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <input type="text" class="form-control" id="description" placeholder="Buscar en descripciones">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label">Fecha Inicio</label>
+                        <input type="datetime-local" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label">Fecha Fin</label>
+                        <input type="datetime-local" class="form-control" id="endDate">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filtrar
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel"></i> Exportar a Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="loading" class="text-center" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Eventos Registrados</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped" id="eventsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Usuario ID</th>
+                            <th>Fecha y Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="eventsTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center">No hay eventos para mostrar</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div id="error" class="alert alert-danger mt-3" style="display: none;"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const API_BASE_URL = '/api';
+let token = localStorage.getItem('token');
+let currentFilters = {};
+
+async function getToken() {
+    if (!token) {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: 'demo_user',
+                password: 'demo_password'
+            })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            token = data.access_token;
+            localStorage.setItem('token', token);
+        }
+    }
+    return token;
+}
+
+document.getElementById('filterForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await loadEvents();
+});
+
+async function loadEvents() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+    
+    const eventType = document.getElementById('eventType').value;
+    const description = document.getElementById('description').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    
+    currentFilters = {};
+    if (eventType) currentFilters.event_type = eventType;
+    if (description) currentFilters.description = description;
+    if (startDate) currentFilters.start_date = new Date(startDate).toISOString();
+    if (endDate) currentFilters.end_date = new Date(endDate).toISOString();
+    
+    try {
+        const token = await getToken();
+        const params = new URLSearchParams();
+        if (eventType) params.append('event_type', eventType);
+        if (description) params.append('description', description);
+        if (startDate) params.append('start_date', new Date(startDate).toISOString());
+        if (endDate) params.append('end_date', new Date(endDate).toISOString());
+        
+        const response = await fetch(`${API_BASE_URL}/history/events?${params.toString()}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al cargar eventos');
+        }
+        
+        const events = await response.json();
+        displayEvents(events);
+        
+    } catch (error) {
+        document.getElementById('error').textContent = error.message;
+        document.getElementById('error').style.display = 'block';
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+    }
+}
+
+function displayEvents(events) {
+    const tbody = document.getElementById('eventsTableBody');
+    
+    if (events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay eventos para mostrar</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = events.map(event => {
+        const date = new Date(event.created_at);
+        return `
+            <tr>
+                <td>${event.id}</td>
+                <td><span class="badge bg-primary">${event.event_type}</span></td>
+                <td>${event.description}</td>
+                <td>${event.user_id || 'N/A'}</td>
+                <td>${date.toLocaleString('es-ES')}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function clearFilters() {
+    document.getElementById('filterForm').reset();
+    loadEvents();
+}
+
+async function exportToExcel() {
+    try {
+        const token = await getToken();
+        const params = new URLSearchParams();
+        if (currentFilters.event_type) params.append('event_type', currentFilters.event_type);
+        if (currentFilters.description) params.append('description', currentFilters.description);
+        if (currentFilters.start_date) params.append('start_date', currentFilters.start_date);
+        if (currentFilters.end_date) params.append('end_date', currentFilters.end_date);
+        
+        const response = await fetch(`${API_BASE_URL}/history/events/export?${params.toString()}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al exportar eventos');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `eventos_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+    } catch (error) {
+        alert('Error al exportar: ' + error.message);
+    }
+}
+
+// Cargar eventos al cargar la página
+window.addEventListener('DOMContentLoaded', () => {
+    loadEvents();
+});
+</script>
+{% endblock %}
+

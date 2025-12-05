@@ -1,0 +1,4 @@
+"""
+Módulo de plantillas HTML.
+"""
+

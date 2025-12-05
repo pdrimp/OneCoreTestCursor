@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis de Documentos - Análisis de Documentos con IA{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-file-alt"></i> Análisis de Documentos con IA</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Cargar Documento</h5>
+            <p class="card-text">Sube un documento PDF, JPG o PNG para analizarlo con Azure Cognitive Services.</p>
+            
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="documentFile" class="form-label">Seleccionar archivo</label>
+                    <input type="file" class="form-control" id="documentFile" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <div class="form-text">Formatos permitidos: PDF, JPG, PNG (máx. 10MB)</div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="uploadBtn">
+                    <i class="fas fa-upload"></i> Analizar Documento
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="loading" class="text-center" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Analizando...</span>
+        </div>
+        <p class="mt-2">Analizando documento con IA...</p>
+    </div>
+    
+    <div id="results" style="display: none;">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Resultados del Análisis</h5>
+            </div>
+            <div class="card-body">
+                <div id="documentType" class="mb-3">
+                    <strong>Tipo de Documento:</strong> <span id="docTypeValue"></span>
+                </div>
+                <div id="invoiceData" style="display: none;">
+                    <h6>Datos de Factura</h6>
+                    <table class="table table-bordered">
+                        <tr><th>Cliente</th><td id="customerName"></td></tr>
+                        <tr><th>Dirección Cliente</th><td id="customerAddress"></td></tr>
+                        <tr><th>Proveedor</th><td id="vendorName"></td></tr>
+                        <tr><th>Dirección Proveedor</th><td id="vendorAddress"></td></tr>
+                        <tr><th>Número de Factura</th><td id="invoiceNumber"></td></tr>
+                        <tr><th>Fecha</th><td id="invoiceDate"></td></tr>
+                        <tr><th>Total</th><td id="invoiceTotal"></td></tr>
+                    </table>
+                    <h6 class="mt-3">Productos/Servicios</h6>
+                    <div id="invoiceItems"></div>
+                </div>
+                <div id="informationData" style="display: none;">
+                    <h6>Datos de Información</h6>
+                    <p><strong>Descripción:</strong></p>
+                    <p id="infoDescription" class="text-muted"></p>
+                    <p><strong>Resumen:</strong></p>
+                    <p id="infoSummary" class="text-muted"></p>
+                    <p><strong>Sentimiento:</strong> <span id="sentiment" class="badge"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="error" class="alert alert-danger" style="display: none;"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const API_BASE_URL = '/api';
+let token = localStorage.getItem('token');
+
+// Función para obtener token (simplificada - en producción usar login real)
+async function getToken() {
+    if (!token) {
+        // Intentar login (en producción, esto debería ser un formulario de login)
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: 'demo_user',  // En producción, obtener del formulario
+                password: 'demo_password'
+            })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            token = data.access_token;
+            localStorage.setItem('token', token);
+        }
+    }
+    return token;
+}
+
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('documentFile');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Por favor selecciona un archivo');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('uploadBtn').disabled = true;
+    
+    try {
+        const token = await getToken();
+        
+        const response = await fetch(`${API_BASE_URL}/documents/analyze`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Error al analizar el documento');
+        }
+        
+        const result = await response.json();
+        displayResults(result);
+        
+    } catch (error) {
+        document.getElementById('error').textContent = error.message;
+        document.getElementById('error').style.display = 'block';
+    } finally {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('uploadBtn').disabled = false;
+    }
+});
+
+function displayResults(result) {
+    document.getElementById('docTypeValue').textContent = result.document_type === 'invoice' ? 'Factura' : 'Información';
+    
+    if (result.document_type === 'invoice') {
+        document.getElementById('invoiceData').style.display = 'block';
+        document.getElementById('informationData').style.display = 'none';
+        
+        const data = result.extracted_data;
+        document.getElementById('customerName').textContent = data.customer?.name || 'N/A';
+        document.getElementById('customerAddress').textContent = data.customer?.address || 'N/A';
+        document.getElementById('vendorName').textContent = data.vendor?.name || 'N/A';
+        document.getElementById('vendorAddress').textContent = data.vendor?.address || 'N/A';
+        document.getElementById('invoiceNumber').textContent = data.invoice_number || 'N/A';
+        document.getElementById('invoiceDate').textContent = data.invoice_date || 'N/A';
+        document.getElementById('invoiceTotal').textContent = data.total ? `$${data.total.toFixed(2)}` : 'N/A';
+        
+        // Mostrar items
+        const itemsDiv = document.getElementById('invoiceItems');
+        if (data.items && data.items.length > 0) {
+            let itemsHTML = '<table class="table table-sm"><thead><tr><th>Cantidad</th><th>Nombre</th><th>Precio Unitario</th><th>Total</th></tr></thead><tbody>';
+            data.items.forEach(item => {
+                itemsHTML += `<tr>
+                    <td>${item.quantity || 'N/A'}</td>
+                    <td>${item.name || 'N/A'}</td>
+                    <td>${item.unit_price ? '$' + item.unit_price.toFixed(2) : 'N/A'}</td>
+                    <td>${item.total ? '$' + item.total.toFixed(2) : 'N/A'}</td>
+                </tr>`;
+            });
+            itemsHTML += '</tbody></table>';
+            itemsDiv.innerHTML = itemsHTML;
+        } else {
+            itemsDiv.innerHTML = '<p class="text-muted">No se encontraron items</p>';
+        }
+    } else {
+        document.getElementById('invoiceData').style.display = 'none';
+        document.getElementById('informationData').style.display = 'block';
+        
+        const data = result.extracted_data;
+        document.getElementById('infoDescription').textContent = data.description || 'N/A';
+        document.getElementById('infoSummary').textContent = data.summary || 'N/A';
+        
+        const sentimentEl = document.getElementById('sentiment');
+        sentimentEl.textContent = data.sentiment || 'neutral';
+        sentimentEl.className = 'badge ' + (data.sentiment === 'positive' ? 'bg-success' : 
+                                           data.sentiment === 'negative' ? 'bg-danger' : 'bg-secondary');
+    }
+    
+    document.getElementById('results').style.display = 'block';
+}
+</script>
+{% endblock %}
+
