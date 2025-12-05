@@ -14,26 +14,26 @@ from app.infrastructure.models.document_model import DocumentModel
 class DocumentRepository(IDocumentRepository):
     """
     Implementación concreta del repositorio de documentos.
-    
+
     Utiliza SQLAlchemy para interactuar con la base de datos SQL Server.
     """
-    
+
     def __init__(self, db: Session):
         """
         Inicializa el repositorio con una sesión de base de datos.
-        
+
         Args:
             db: Sesión de SQLAlchemy para operaciones de base de datos
         """
         self.db = db
-    
+
     def _to_entity(self, model: DocumentModel) -> Document:
         """
         Convierte un modelo de SQLAlchemy a una entidad del dominio.
-        
+
         Args:
             model: Instancia de DocumentModel
-            
+
         Returns:
             Document: Instancia de Document del dominio
         """
@@ -49,14 +49,14 @@ class DocumentRepository(IDocumentRepository):
             created_at=model.created_at,
             updated_at=model.updated_at
         )
-    
+
     def _to_model(self, entity: Document) -> DocumentModel:
         """
         Convierte una entidad del dominio a un modelo de SQLAlchemy.
-        
+
         Args:
             entity: Instancia de Document del dominio
-            
+
         Returns:
             DocumentModel: Instancia de DocumentModel para base de datos
         """
@@ -71,14 +71,14 @@ class DocumentRepository(IDocumentRepository):
             created_at=entity.created_at,
             updated_at=entity.updated_at
         )
-    
+
     def create(self, document: Document) -> Document:
         """
         Crea un nuevo documento en la base de datos.
-        
+
         Args:
             document: Instancia de Document a crear
-            
+
         Returns:
             Document: Documento creado con ID asignado
         """
@@ -87,53 +87,53 @@ class DocumentRepository(IDocumentRepository):
         self.db.commit()
         self.db.refresh(db_document)
         return self._to_entity(db_document)
-    
+
     def get_by_id(self, document_id: int) -> Optional[Document]:
         """
         Obtiene un documento por su ID.
-        
+
         Args:
             document_id: Identificador único del documento
-            
+
         Returns:
             Optional[Document]: Documento encontrado o None si no existe
         """
         db_document = self.db.query(DocumentModel).filter(DocumentModel.id == document_id).first()
         return self._to_entity(db_document) if db_document else None
-    
+
     def get_by_user_id(self, user_id: int) -> List[Document]:
         """
         Obtiene todos los documentos de un usuario.
-        
+
         Args:
             user_id: Identificador único del usuario
-            
+
         Returns:
             List[Document]: Lista de documentos del usuario
         """
         db_documents = self.db.query(DocumentModel).filter(DocumentModel.user_id == user_id).all()
         return [self._to_entity(db_doc) for db_doc in db_documents]
-    
+
     def get_by_type(self, document_type: str) -> List[Document]:
         """
         Obtiene todos los documentos de un tipo específico.
-        
+
         Args:
             document_type: Tipo de documento a filtrar
-            
+
         Returns:
             List[Document]: Lista de documentos del tipo especificado
         """
         db_documents = self.db.query(DocumentModel).filter(DocumentModel.document_type == document_type).all()
         return [self._to_entity(db_doc) for db_doc in db_documents]
-    
+
     def update(self, document: Document) -> Document:
         """
         Actualiza un documento existente.
-        
+
         Args:
             document: Instancia de Document con los datos actualizados
-            
+
         Returns:
             Document: Documento actualizado
         """
@@ -149,14 +149,14 @@ class DocumentRepository(IDocumentRepository):
             self.db.refresh(db_document)
             return self._to_entity(db_document)
         return document
-    
+
     def delete(self, document_id: int) -> bool:
         """
         Elimina un documento de la base de datos.
-        
+
         Args:
             document_id: Identificador único del documento a eliminar
-            
+
         Returns:
             bool: True si se eliminó correctamente, False en caso contrario
         """
@@ -166,4 +166,3 @@ class DocumentRepository(IDocumentRepository):
             self.db.commit()
             return True
         return False
-

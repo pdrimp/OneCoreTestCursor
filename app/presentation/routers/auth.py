@@ -18,10 +18,10 @@ router = APIRouter()
 def get_auth_use_case(db: Session = Depends(get_db)) -> AuthUseCase:
     """
     Dependencia para obtener una instancia de AuthUseCase.
-    
+
     Args:
         db: Sesión de base de datos
-        
+
     Returns:
         AuthUseCase: Instancia del caso de uso de autenticación
     """
@@ -36,27 +36,26 @@ async def login(
 ):
     """
     Endpoint para iniciar sesión.
-    
+
     Permite a usuarios anónimos iniciar sesión con username y password.
     Devuelve un JWT firmado con id_usuario, rol y tiempo de expiración de 15 minutos.
-    
+
     Args:
         login_request: Datos de inicio de sesión (username y password)
         use_case: Caso de uso de autenticación
-        
+
     Returns:
         TokenResponse: Token JWT y tipo de token
-        
+
     Raises:
         HTTPException: Si las credenciales son inválidas
     """
     result = use_case.login(login_request.username, login_request.password)
-    
+
     if not result:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales inválidas"
         )
-    
-    return TokenResponse(**result)
 
+    return TokenResponse(**result)

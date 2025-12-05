@@ -16,11 +16,10 @@ class FileStatus(str, Enum):
     COMPLETED = "completed"
     FAILED = "failed"
 
-
 class File:
     """
     Entidad que representa un archivo cargado en el sistema.
-    
+
     Attributes:
         id: Identificador único del archivo
         filename: Nombre original del archivo
@@ -34,10 +33,10 @@ class File:
         created_at: Fecha y hora de carga del archivo
         updated_at: Fecha y hora de última actualización
     """
-    
+
     def __init__(
         self,
-        id: Optional[int] = None,
+        id_: Optional[int] = None,
         filename: str = "",
         s3_key: str = "",
         s3_url: str = "",
@@ -51,9 +50,9 @@ class File:
     ):
         """
         Inicializa una instancia de File.
-        
+
         Args:
-            id: Identificador único del archivo
+            id_: Identificador único del archivo
             filename: Nombre original del archivo
             s3_key: Clave del archivo en S3
             s3_url: URL del archivo en S3
@@ -65,7 +64,7 @@ class File:
             created_at: Fecha de creación
             updated_at: Fecha de actualización
         """
-        self.id = id
+        self.id = id_
         self.filename = filename
         self.s3_key = s3_key
         self.s3_url = s3_url
@@ -76,8 +75,7 @@ class File:
         self.user_id = user_id
         self.created_at = created_at or datetime.utcnow()
         self.updated_at = updated_at or datetime.utcnow()
-    
+
     def __repr__(self) -> str:
         """Representación en string del archivo."""
         return f"<File(id={self.id}, filename={self.filename}, status={self.status})>"
-

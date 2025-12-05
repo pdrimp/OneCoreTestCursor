@@ -12,11 +12,11 @@ from app.infrastructure.database import Base
 class DocumentModel(Base):
     """
     Modelo SQLAlchemy para la tabla de documentos.
-    
+
     Representa la estructura de la tabla 'documents' en la base de datos.
     """
     __tablename__ = "documents"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String(255), nullable=False)
     document_type = Column(String(50), nullable=False, default="unknown")
@@ -26,4 +26,3 @@ class DocumentModel(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-

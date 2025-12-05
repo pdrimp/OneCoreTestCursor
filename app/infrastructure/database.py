@@ -29,10 +29,10 @@ Base = declarative_base()
 def get_db():
     """
     Generador de dependencia para obtener sesión de base de datos.
-    
+
     Yields:
         Session: Sesión de SQLAlchemy para operaciones de base de datos
-        
+
     Usage:
         Se utiliza como dependencia en FastAPI:
         @app.get("/endpoint")
@@ -44,4 +44,3 @@ def get_db():
         yield db
     finally:
         db.close()
-

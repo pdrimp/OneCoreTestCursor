@@ -12,11 +12,11 @@ from app.infrastructure.database import Base
 class FileModel(Base):
     """
     Modelo SQLAlchemy para la tabla de archivos.
-    
+
     Representa la estructura de la tabla 'files' en la base de datos.
     """
     __tablename__ = "files"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String(255), nullable=False)
     s3_key = Column(String(500), nullable=False, unique=True)
@@ -28,4 +28,3 @@ class FileModel(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-

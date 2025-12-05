@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 class DocumentAnalysisResponse(BaseModel):
     """
     Esquema para la respuesta de análisis de documento.
-    
+
     Attributes:
         document_id: ID del documento creado
         document_type: Tipo de documento (invoice/information)
@@ -27,7 +27,7 @@ class DocumentAnalysisResponse(BaseModel):
 class InvoiceData(BaseModel):
     """
     Esquema para datos de factura extraídos.
-    
+
     Attributes:
         customer: Información del cliente
         vendor: Información del proveedor
@@ -47,7 +47,7 @@ class InvoiceData(BaseModel):
 class InformationData(BaseModel):
     """
     Esquema para datos de documento de información extraídos.
-    
+
     Attributes:
         description: Descripción del contenido
         summary: Resumen del contenido
@@ -56,4 +56,3 @@ class InformationData(BaseModel):
     description: str = Field(..., description="Descripción del contenido")
     summary: str = Field(..., description="Resumen del contenido")
     sentiment: str = Field(..., description="Sentimiento detectado")
-

@@ -7,4 +7,3 @@ Contiene implementaciones técnicas de:
 - Servicios externos
 - Configuración
 """
-

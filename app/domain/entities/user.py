@@ -11,7 +11,7 @@ from datetime import datetime
 class User:
     """
     Entidad que representa un usuario en el sistema.
-    
+
     Attributes:
         id: Identificador único del usuario
         username: Nombre de usuario para autenticación
@@ -22,10 +22,10 @@ class User:
         created_at: Fecha y hora de creación del usuario
         updated_at: Fecha y hora de última actualización
     """
-    
+
     def __init__(
         self,
-        id: Optional[int] = None,
+        id_: Optional[int] = None,
         username: str = "",
         email: str = "",
         password_hash: str = "",
@@ -36,9 +36,9 @@ class User:
     ):
         """
         Inicializa una instancia de User.
-        
+
         Args:
-            id: Identificador único del usuario
+            id_: Identificador único del usuario
             username: Nombre de usuario
             email: Correo electrónico
             password_hash: Hash de la contraseña
@@ -47,7 +47,7 @@ class User:
             created_at: Fecha de creación
             updated_at: Fecha de actualización
         """
-        self.id = id
+        self.id = id_
         self.username = username
         self.email = email
         self.password_hash = password_hash
@@ -55,8 +55,7 @@ class User:
         self.is_active = is_active
         self.created_at = created_at or datetime.utcnow()
         self.updated_at = updated_at or datetime.utcnow()
-    
+
     def __repr__(self) -> str:
         """Representación en string del usuario."""
         return f"<User(id={self.id}, username={self.username}, role={self.role})>"
-

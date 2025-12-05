@@ -20,10 +20,10 @@ templates = Jinja2Templates(directory=templates_dir)
 async def documents_page(request: Request):
     """
     Endpoint para la página de análisis de documentos.
-    
+
     Args:
         request: Request de FastAPI
-        
+
     Returns:
         HTMLResponse: Página HTML de análisis de documentos
     """
@@ -34,12 +34,11 @@ async def documents_page(request: Request):
 async def history_page(request: Request):
     """
     Endpoint para la página de historial de eventos.
-    
+
     Args:
         request: Request de FastAPI
-        
+
     Returns:
         HTMLResponse: Página HTML de historial
     """
     return templates.TemplateResponse("history.html", {"request": request})
-

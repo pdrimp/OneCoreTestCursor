@@ -6,4 +6,3 @@ Contiene servicios técnicos como:
 - Almacenamiento en S3
 - Servicios de Azure Cognitive Services
 """
-

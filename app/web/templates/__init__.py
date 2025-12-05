@@ -1,4 +1,3 @@
 """
 Módulo de plantillas HTML.
 """
-

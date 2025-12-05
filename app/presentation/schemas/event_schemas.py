@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 class EventResponse(BaseModel):
     """
     Esquema para la respuesta de evento.
-    
+
     Attributes:
         id: ID del evento
         event_type: Tipo de evento
@@ -27,7 +27,7 @@ class EventResponse(BaseModel):
     user_id: Optional[int] = Field(None, description="ID del usuario")
     metadata: Dict[str, Any] = Field(default_factory=dict, description="Metadata del evento")
     created_at: datetime = Field(..., description="Fecha y hora del evento")
-    
+
     class Config:
         from_attributes = True
 
@@ -35,7 +35,7 @@ class EventResponse(BaseModel):
 class EventFilter(BaseModel):
     """
     Esquema para filtros de eventos.
-    
+
     Attributes:
         event_type: Filtrar por tipo de evento (opcional)
         description: Buscar en descripciones (opcional)
@@ -46,4 +46,3 @@ class EventFilter(BaseModel):
     description: Optional[str] = Field(None, description="Texto a buscar en descripciones")
     start_date: Optional[datetime] = Field(None, description="Fecha de inicio")
     end_date: Optional[datetime] = Field(None, description="Fecha de fin")
-

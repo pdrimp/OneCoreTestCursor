@@ -47,7 +47,7 @@ app.include_router(web.router, tags=["Web"])
 async def root():
     """
     Endpoint raíz de la API.
-    
+
     Returns:
         dict: Mensaje de bienvenida con información de la API
     """
@@ -62,9 +62,8 @@ async def root():
 async def health_check():
     """
     Endpoint de verificación de salud de la API.
-    
+
     Returns:
         dict: Estado de la API
     """
     return {"status": "healthy"}
-

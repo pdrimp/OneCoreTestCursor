@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 class FileUploadResponse(BaseModel):
     """
     Esquema para la respuesta de carga de archivo.
-    
+
     Attributes:
         file_id: ID del archivo creado
         s3_url: URL del archivo en S3
@@ -29,7 +29,7 @@ class FileUploadResponse(BaseModel):
 class ValidationItem(BaseModel):
     """
     Esquema para un item de validación.
-    
+
     Attributes:
         type: Tipo de validación (empty_value, duplicate, invalid_type, etc.)
         row: Número de fila (opcional)
@@ -40,4 +40,3 @@ class ValidationItem(BaseModel):
     row: Optional[int] = Field(None, description="Número de fila")
     column: Optional[str] = Field(None, description="Nombre de columna")
     message: str = Field(..., description="Mensaje de validación")
-

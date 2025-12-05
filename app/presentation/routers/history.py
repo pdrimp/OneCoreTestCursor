@@ -23,10 +23,10 @@ router = APIRouter()
 def get_event_use_case(db: Session = Depends(get_db)) -> EventUseCase:
     """
     Dependencia para obtener una instancia de EventUseCase.
-    
+
     Args:
         db: Sesión de base de datos
-        
+
     Returns:
         EventUseCase: Instancia del caso de uso de eventos
     """
@@ -45,9 +45,9 @@ async def get_events(
 ):
     """
     Endpoint para obtener eventos con filtros opcionales.
-    
+
     Permite filtrar eventos por tipo, descripción o rango de fechas.
-    
+
     Args:
         event_type: Tipo de evento a filtrar (opcional)
         description: Texto a buscar en descripciones (opcional)
@@ -55,7 +55,7 @@ async def get_events(
         end_date: Fecha de fin del rango (opcional)
         current_user: Usuario actual autenticado
         use_case: Caso de uso de eventos
-        
+
     Returns:
         list[EventResponse]: Lista de eventos que cumplen los filtros
     """
@@ -69,14 +69,14 @@ async def get_events(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Tipo de evento inválido: {event_type}"
             )
-    
+
     events = use_case.get_events(
         event_type=event_type_enum,
         description=description,
         start_date=start_date,
         end_date=end_date
     )
-    
+
     return [EventResponse(
         id=event.id,
         event_type=event.event_type.value,
@@ -98,9 +98,9 @@ async def export_events(
 ):
     """
     Endpoint para exportar eventos a Excel.
-    
+
     Genera un archivo Excel con los eventos filtrados.
-    
+
     Args:
         event_type: Tipo de evento a filtrar (opcional)
         description: Texto a buscar en descripciones (opcional)
@@ -108,7 +108,7 @@ async def export_events(
         end_date: Fecha de fin del rango (opcional)
         current_user: Usuario actual autenticado
         use_case: Caso de uso de eventos
-        
+
     Returns:
         Response: Archivo Excel con los eventos
     """
@@ -122,17 +122,17 @@ async def export_events(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Tipo de evento inválido: {event_type}"
             )
-    
+
     events = use_case.get_events(
         event_type=event_type_enum,
         description=description,
         start_date=start_date,
         end_date=end_date
     )
-    
+
     # Exportar a Excel
     excel_content = use_case.export_to_excel(events)
-    
+
     return Response(
         content=excel_content,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -140,4 +140,3 @@ async def export_events(
             "Content-Disposition": f"attachment; filename=eventos_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         }
     )
-

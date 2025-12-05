@@ -21,7 +21,7 @@ from app.infrastructure.repositories.user_repository_impl import UserRepository
 def create_test_user():
     """
     Crea un usuario de prueba en la base de datos.
-    
+
     Usuario creado:
     - Username: demo_user
     - Password: demo_password
@@ -32,13 +32,13 @@ def create_test_user():
     try:
         user_repository = UserRepository(db)
         password_service = PasswordService()
-        
+
         # Verificar si el usuario ya existe
         existing_user = user_repository.get_by_username("demo_user")
         if existing_user:
             print("El usuario 'demo_user' ya existe en la base de datos.")
             return
-        
+
         # Crear nuevo usuario
         new_user = User(
             username="demo_user",
@@ -47,14 +47,14 @@ def create_test_user():
             role="user",
             is_active=True
         )
-        
+
         created_user = user_repository.create(new_user)
         print(f"Usuario de prueba creado exitosamente:")
         print(f"  - ID: {created_user.id}")
         print(f"  - Username: {created_user.username}")
         print(f"  - Email: {created_user.email}")
         print(f"  - Role: {created_user.role}")
-        
+
     except Exception as e:
         print(f"Error al crear usuario de prueba: {e}")
     finally:
@@ -63,4 +63,3 @@ def create_test_user():
 
 if __name__ == "__main__":
     create_test_user()
-

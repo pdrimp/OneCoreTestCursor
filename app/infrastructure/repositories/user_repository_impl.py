@@ -14,31 +14,31 @@ from app.infrastructure.models.user_model import UserModel
 class UserRepository(IUserRepository):
     """
     Implementación concreta del repositorio de usuarios.
-    
+
     Utiliza SQLAlchemy para interactuar con la base de datos SQL Server.
     """
-    
+
     def __init__(self, db: Session):
         """
         Inicializa el repositorio con una sesión de base de datos.
-        
+
         Args:
             db: Sesión de SQLAlchemy para operaciones de base de datos
         """
         self.db = db
-    
+
     def _to_entity(self, model: UserModel) -> User:
         """
         Convierte un modelo de SQLAlchemy a una entidad del dominio.
-        
+
         Args:
             model: Instancia de UserModel
-            
+
         Returns:
             User: Instancia de User del dominio
         """
         return User(
-            id=model.id,
+            id_=model.id,
             username=model.username,
             email=model.email,
             password_hash=model.password_hash,
@@ -47,14 +47,14 @@ class UserRepository(IUserRepository):
             created_at=model.created_at,
             updated_at=model.updated_at
         )
-    
+
     def _to_model(self, entity: User) -> UserModel:
         """
         Convierte una entidad del dominio a un modelo de SQLAlchemy.
-        
+
         Args:
             entity: Instancia de User del dominio
-            
+
         Returns:
             UserModel: Instancia de UserModel para base de datos
         """
@@ -68,14 +68,14 @@ class UserRepository(IUserRepository):
             created_at=entity.created_at,
             updated_at=entity.updated_at
         )
-    
+
     def create(self, user: User) -> User:
         """
         Crea un nuevo usuario en la base de datos.
-        
+
         Args:
             user: Instancia de User a crear
-            
+
         Returns:
             User: Usuario creado con ID asignado
         """
@@ -84,53 +84,53 @@ class UserRepository(IUserRepository):
         self.db.commit()
         self.db.refresh(db_user)
         return self._to_entity(db_user)
-    
+
     def get_by_id(self, user_id: int) -> Optional[User]:
         """
         Obtiene un usuario por su ID.
-        
+
         Args:
             user_id: Identificador único del usuario
-            
+
         Returns:
             Optional[User]: Usuario encontrado o None si no existe
         """
         db_user = self.db.query(UserModel).filter(UserModel.id == user_id).first()
         return self._to_entity(db_user) if db_user else None
-    
+
     def get_by_username(self, username: str) -> Optional[User]:
         """
         Obtiene un usuario por su nombre de usuario.
-        
+
         Args:
             username: Nombre de usuario
-            
+
         Returns:
             Optional[User]: Usuario encontrado o None si no existe
         """
         db_user = self.db.query(UserModel).filter(UserModel.username == username).first()
         return self._to_entity(db_user) if db_user else None
-    
+
     def get_by_email(self, email: str) -> Optional[User]:
         """
         Obtiene un usuario por su correo electrónico.
-        
+
         Args:
             email: Correo electrónico del usuario
-            
+
         Returns:
             Optional[User]: Usuario encontrado o None si no existe
         """
         db_user = self.db.query(UserModel).filter(UserModel.email == email).first()
         return self._to_entity(db_user) if db_user else None
-    
+
     def update(self, user: User) -> User:
         """
         Actualiza un usuario existente.
-        
+
         Args:
             user: Instancia de User con los datos actualizados
-            
+
         Returns:
             User: Usuario actualizado
         """
@@ -146,14 +146,14 @@ class UserRepository(IUserRepository):
             self.db.refresh(db_user)
             return self._to_entity(db_user)
         return user
-    
+
     def delete(self, user_id: int) -> bool:
         """
         Elimina un usuario de la base de datos.
-        
+
         Args:
             user_id: Identificador único del usuario a eliminar
-            
+
         Returns:
             bool: True si se eliminó correctamente, False en caso contrario
         """
@@ -163,4 +163,3 @@ class UserRepository(IUserRepository):
             self.db.commit()
             return True
         return False
-
