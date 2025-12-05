@@ -39,7 +39,7 @@ class DocumentRepository(IDocumentRepository):
         """
         from app.domain.entities.document import DocumentType
         return Document(
-            id=model.id,
+            id_=model.id,
             filename=model.filename,
             document_type=DocumentType(model.document_type) if model.document_type else DocumentType.UNKNOWN,
             file_path=model.file_path,

@@ -34,7 +34,7 @@ class Document:
     
     def __init__(
         self,
-        id: Optional[int] = None,
+        id_: Optional[int] = None,
         filename: str = "",
         document_type: DocumentType = DocumentType.UNKNOWN,
         file_path: str = "",
@@ -48,7 +48,7 @@ class Document:
         Inicializa una instancia de Document.
         
         Args:
-            id: Identificador único del documento
+            id_: Identificador único del documento
             filename: Nombre del archivo
             document_type: Tipo de documento
             file_path: Ruta del archivo
@@ -58,7 +58,7 @@ class Document:
             created_at: Fecha de creación
             updated_at: Fecha de actualización
         """
-        self.id = id
+        self.id = id_
         self.filename = filename
         self.document_type = document_type
         self.file_path = file_path
